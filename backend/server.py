@@ -96,8 +96,9 @@ async def delete_product(product_id: str):
 
 # ============= SERVICES ENDPOINTS =============
 @api_router.get("/services")
-async def get_services():
-    services = await db.services.find().to_list(1000)
+async def get_services(limit: int = 100):
+    projection = {'_id': 0}
+    services = await db.services.find({}, projection).limit(min(limit, 100)).to_list(100)
     return [Service(**service) for service in services]
 
 
