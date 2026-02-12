@@ -1,14 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Calendar, Heart, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { products, services, blogPosts, testimonials } from '../mock/mockData';
+import { getProducts, getServices, getBlogPosts } from '../services/api';
+import { testimonials } from '../mock/mockData';
 import { useCart } from '../context/CartContext';
 import { toast } from '../hooks/use-toast';
 
 const Home = () => {
   const { addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [services, setServices] = useState([]);
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, servicesData, blogData] = await Promise.all([
+          getProducts(true), // fetch only featured products
+          getServices(),
+          getBlogPosts(true)
+        ]);
+        setProducts(productsData);
+        setServices(servicesData);
+        setBlogPosts(blogData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare i dati. Riprova più tardi.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleAddToCart = (product) => {
     addToCart(product);
