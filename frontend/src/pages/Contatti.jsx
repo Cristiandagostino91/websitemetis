@@ -6,9 +6,11 @@ import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent } from '../components/ui/card';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { contactInfo } from '../mock/mockData';
+import { createContactMessage } from '../services/api';
 import { toast } from '../hooks/use-toast';
 
 const Contatti = () => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,14 +18,29 @@ const Contatti = () => {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock submission
-    toast({
-      title: "Messaggio inviato!",
-      description: "Ti contatteremo presto.",
-    });
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    setLoading(true);
+    
+    try {
+      await createContactMessage(formData);
+      
+      toast({
+        title: "Messaggio inviato!",
+        description: "Ti contatteremo presto.",
+      });
+      
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile inviare il messaggio. Riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -100,8 +117,13 @@ const Contatti = () => {
                       className="mt-1"
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" size="lg">
-                    Invia Messaggio
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-green-600 hover:bg-green-700" 
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? 'Invio in corso...' : 'Invia Messaggio'}
                   </Button>
                 </form>
               </CardContent>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -7,7 +7,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Calendar } from '../components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { services } from '../mock/mockData';
+import { getServices, createBooking, getAvailableSlots } from '../services/api';
 import { CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -15,6 +15,9 @@ import { toast } from '../hooks/use-toast';
 
 const Prenota = () => {
   const [date, setDate] = useState();
+  const [services, setServices] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     service: '',
     time: '',
@@ -24,12 +27,36 @@ const Prenota = () => {
     notes: ''
   });
 
-  const timeSlots = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await getServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      }
+    };
 
-  const handleSubmit = (e) => {
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      if (date) {
+        try {
+          const dateStr = format(date, 'yyyy-MM-dd');
+          const data = await getAvailableSlots(dateStr);
+          setAvailableSlots(data.availableSlots);
+        } catch (error) {
+          console.error('Error fetching available slots:', error);
+        }
+      }
+    };
+
+    fetchAvailableSlots();
+  }, [date]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!date) {
       toast({
@@ -40,21 +67,48 @@ const Prenota = () => {
       return;
     }
     
-    toast({
-      title: "Prenotazione inviata!",
-      description: "Ti contatteremo presto per confermare l'appuntamento.",
-    });
+    setLoading(true);
     
-    // Reset form
-    setFormData({
-      service: '',
-      time: '',
-      name: '',
-      email: '',
-      phone: '',
-      notes: ''
-    });
-    setDate(undefined);
+    try {
+      const bookingData = {
+        serviceId: formData.service,
+        date: format(date, 'yyyy-MM-dd'),
+        time: formData.time,
+        customer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone
+        },
+        notes: formData.notes
+      };
+
+      await createBooking(bookingData);
+      
+      toast({
+        title: "Prenotazione confermata!",
+        description: "Ti contatteremo presto per confermare l'appuntamento.",
+      });
+      
+      // Reset form
+      setFormData({
+        service: '',
+        time: '',
+        name: '',
+        email: '',
+        phone: '',
+        notes: ''
+      });
+      setDate(undefined);
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      toast({
+        title: "Errore",
+        description: error.response?.data?.detail || "Impossibile completare la prenotazione.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -125,12 +179,16 @@ const Prenota = () => {
               {/* Time Selection */}
               <div>
                 <Label htmlFor="time">Orario Preferito *</Label>
-                <Select value={formData.time} onValueChange={(value) => setFormData({...formData, time: value})}>
+                <Select 
+                  value={formData.time} 
+                  onValueChange={(value) => setFormData({...formData, time: value})}
+                  disabled={!date || availableSlots.length === 0}
+                >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Scegli un orario" />
+                    <SelectValue placeholder={date ? "Scegli un orario" : "Seleziona prima una data"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {timeSlots.map((time) => (
+                    {availableSlots.map((time) => (
                       <SelectItem key={time} value={time}>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
@@ -140,6 +198,9 @@ const Prenota = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {date && availableSlots.length === 0 && (
+                  <p className="text-sm text-red-600 mt-1">Nessun orario disponibile per questa data</p>
+                )}
               </div>
 
               <div className="border-t pt-6">
@@ -206,8 +267,13 @@ const Prenota = () => {
                 </p>
               </div>
 
-              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" size="lg">
-                Invia Richiesta di Prenotazione
+              <Button 
+                type="submit" 
+                className="w-full bg-green-600 hover:bg-green-700" 
+                size="lg"
+                disabled={loading}
+              >
+                {loading ? 'Invio in corso...' : 'Invia Richiesta di Prenotazione'}
               </Button>
             </form>
           </CardContent>
