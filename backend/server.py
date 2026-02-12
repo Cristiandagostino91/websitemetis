@@ -203,8 +203,9 @@ async def get_order_stats():
     result = await db.orders.aggregate(pipeline).to_list(1)
     total_revenue = result[0]["total"] if result else 0
     
-    # Recent orders
-    recent_orders = await db.orders.find().sort("createdAt", -1).limit(5).to_list(5)
+    # Recent orders with projection
+    projection = {'_id': 0}
+    recent_orders = await db.orders.find({}, projection).sort("createdAt", -1).limit(5).to_list(5)
     
     return {
         "totalOrders": total_orders,
