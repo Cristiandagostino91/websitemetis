@@ -1,11 +1,35 @@
-import React from 'react';
-import { services } from '../mock/mockData';
+import React, { useState, useEffect } from 'react';
+import { getServices } from '../services/api';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
 import { Clock, Calendar } from 'lucide-react';
+import { toast } from '../hooks/use-toast';
 
 const Servizi = () => {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await getServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare i servizi.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
   const groupedServices = services.reduce((acc, service) => {
     if (!acc[service.category]) {
       acc[service.category] = [];
