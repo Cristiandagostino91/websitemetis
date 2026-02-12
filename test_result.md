@@ -207,6 +207,18 @@ backend:
           agent: "testing"
           comment: "MongoDB integration working correctly. Database connection healthy, all CRUD operations functioning, data persistence verified across all collections (products, services, orders, bookings, blog_posts, contact_messages)."
 
+  - task: "MongoDB Query Optimization"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Comprehensive MongoDB query optimization testing completed successfully. All 11 pagination tests passed (100% success rate). Key optimizations verified: 1) All endpoints respect limit parameters (default and custom), 2) Skip+limit pagination working correctly, 3) MongoDB projection optimization in bookings-available endpoint fetches only required 'time' field, 4) Query limits properly cap result sets (products: 5/6, services: 3/6, orders: skip+limit, bookings: projection, blog: 2/3, contact: 2/5), 5) All endpoints return 200 status codes and proper JSON responses. Performance optimizations are working as designed."
+
   - task: "API Health and Connectivity"
     implemented: true
     working: true
