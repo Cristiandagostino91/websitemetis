@@ -26,6 +26,7 @@ function App() {
     <CartProvider>
       <BrowserRouter>
         <div className="App">
+          <ScrollToTop />
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
