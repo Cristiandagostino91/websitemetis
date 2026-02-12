@@ -161,6 +161,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "Bookings API working perfectly. GET /api/bookings-available/{date} returns available time slots (14 available). POST /api/bookings creates bookings with service validation and slot availability checks. After booking creation, available slots are properly updated and the booked slot is removed from availability. Auto-generation of booking numbers working."
+        - working: true
+          agent: "testing"
+          comment: "Bookings API optimization verified. Custom limit (5) working correctly for bookings list. Critical optimization: /api/bookings-available/2025-02-20 uses MongoDB projection to fetch only 'time' field for efficiency, returning 13 available slots. Query projection optimization reduces data transfer and improves performance."
 
   - task: "Blog API Implementation"
     implemented: true
