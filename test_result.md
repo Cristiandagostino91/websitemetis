@@ -146,6 +146,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "Orders API fully functional. GET /api/orders-stats returns correct statistics (totalOrders, pendingOrders, totalRevenue, recentOrders). POST /api/orders successfully creates orders with auto-generated order numbers. GET /api/orders retrieves created orders. Order creation and retrieval working correctly with proper data persistence."
+        - working: true
+          agent: "testing"
+          comment: "Orders API pagination optimization verified. Custom limit (2) and skip+limit pagination (skip=1, limit=1) working correctly. Orders endpoint properly implements MongoDB limit() and skip() for efficient pagination without fetching excess data."
 
   - task: "Bookings API Implementation"
     implemented: true
