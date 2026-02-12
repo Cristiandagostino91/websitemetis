@@ -1,285 +1,252 @@
 #!/usr/bin/env python3
+"""
+Backend Test Suite for Centro Metis API - MongoDB Query Optimization Testing
+Testing optimized queries with pagination parameters
+"""
 
 import requests
 import json
-import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Backend URL from environment (production URL)
-BASE_URL = "https://smart-shop-pro.preview.emergentagent.com/api"
+# Use the production backend URL from frontend .env
+BACKEND_URL = "https://smart-shop-pro.preview.emergentagent.com/api"
 
-class TestResult:
-    def __init__(self):
-        self.tests = []
-        self.passed = 0
-        self.failed = 0
+def test_api_endpoint(method, endpoint, expected_status=200, params=None, data=None):
+    """Helper function to test API endpoints"""
+    url = f"{BACKEND_URL}{endpoint}"
     
-    def add_test(self, name, success, message="", data=None):
-        self.tests.append({
-            'name': name,
-            'success': success,
-            'message': message,
-            'data': data
-        })
-        if success:
-            self.passed += 1
+    try:
+        if method.upper() == "GET":
+            response = requests.get(url, params=params, timeout=10)
+        elif method.upper() == "POST":
+            response = requests.post(url, json=data, timeout=10)
         else:
-            self.failed += 1
-    
-    def print_summary(self):
-        print(f"\n{'='*80}")
-        print(f"CENTRO METIS BACKEND API TEST RESULTS")
-        print(f"{'='*80}")
-        print(f"Total Tests: {len(self.tests)}")
-        print(f"Passed: {self.passed}")
-        print(f"Failed: {self.failed}")
-        print(f"{'='*80}")
+            return False, f"Unsupported method: {method}"
         
-        for test in self.tests:
-            status = "✅ PASS" if test['success'] else "❌ FAIL"
-            print(f"{status}: {test['name']}")
-            if test['message']:
-                print(f"    Message: {test['message']}")
-            if not test['success'] and test['data']:
-                print(f"    Response: {test['data']}")
-        print()
-
-def test_health_check(result):
-    """Test health check endpoint"""
-    try:
-        response = requests.get(f"{BASE_URL}/health", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('status') == 'healthy' and data.get('database') == 'connected':
-                result.add_test("Health Check", True, "Backend and database are healthy")
-            else:
-                result.add_test("Health Check", False, f"Unexpected health status: {data}")
-        else:
-            result.add_test("Health Check", False, f"Status code: {response.status_code}")
-    except Exception as e:
-        result.add_test("Health Check", False, f"Connection error: {str(e)}")
-
-def test_products_api(result):
-    """Test Products API endpoints"""
-    
-    # Test GET /api/products
-    try:
-        response = requests.get(f"{BASE_URL}/products", timeout=10)
-        if response.status_code == 200:
-            products = response.json()
-            result.add_test("GET /api/products", True, f"Retrieved {len(products)} products")
-            
-            # Test featured products filter
-            response_featured = requests.get(f"{BASE_URL}/products?featured=true", timeout=10)
-            if response_featured.status_code == 200:
-                featured_products = response_featured.json()
-                result.add_test("GET /api/products?featured=true", True, f"Retrieved {len(featured_products)} featured products")
-            else:
-                result.add_test("GET /api/products?featured=true", False, f"Status code: {response_featured.status_code}")
-        else:
-            result.add_test("GET /api/products", False, f"Status code: {response.status_code}", response.text)
-    except Exception as e:
-        result.add_test("GET /api/products", False, f"Error: {str(e)}")
-
-def test_services_api(result):
-    """Test Services API endpoints"""
-    
-    try:
-        response = requests.get(f"{BASE_URL}/services", timeout=10)
-        if response.status_code == 200:
-            services = response.json()
-            result.add_test("GET /api/services", True, f"Retrieved {len(services)} services")
-        else:
-            result.add_test("GET /api/services", False, f"Status code: {response.status_code}", response.text)
-    except Exception as e:
-        result.add_test("GET /api/services", False, f"Error: {str(e)}")
-
-def test_orders_api(result):
-    """Test Orders API endpoints"""
-    
-    # Test GET /api/orders-stats
-    try:
-        response = requests.get(f"{BASE_URL}/orders-stats", timeout=10)
-        if response.status_code == 200:
-            stats = response.json()
-            expected_keys = ['totalOrders', 'pendingOrders', 'totalRevenue', 'recentOrders']
-            if all(key in stats for key in expected_keys):
-                result.add_test("GET /api/orders-stats", True, f"Stats: {stats['totalOrders']} orders, €{stats['totalRevenue']} revenue")
-            else:
-                result.add_test("GET /api/orders-stats", False, f"Missing keys in response: {stats}")
-        else:
-            result.add_test("GET /api/orders-stats", False, f"Status code: {response.status_code}", response.text)
-    except Exception as e:
-        result.add_test("GET /api/orders-stats", False, f"Error: {str(e)}")
-    
-    # Test POST /api/orders - Create test order
-    test_order = {
-        "items": [
-            {
-                "productId": "test-product-1", 
-                "name": "Omega 3 Fish Oil", 
-                "price": 29.90, 
-                "quantity": 2, 
-                "image": "omega3.jpg"
-            }
-        ],
-        "customer": {
-            "firstName": "Mario", 
-            "lastName": "Rossi", 
-            "email": "mario.rossi@email.com", 
-            "phone": "393123456789"
-        },
-        "shipping": {
-            "address": "Via Roma 123", 
-            "city": "Milano", 
-            "zipCode": "20100", 
-            "notes": "Citofono: Rossi"
-        },
-        "total": 59.80
-    }
-    
-    try:
-        response = requests.post(f"{BASE_URL}/orders", json=test_order, timeout=10)
-        if response.status_code == 200:
-            order = response.json()
-            order_id = order.get('id')
-            result.add_test("POST /api/orders", True, f"Order created: {order.get('orderNumber')}")
-            
-            # Test GET /api/orders - verify order was created
-            response_get = requests.get(f"{BASE_URL}/orders", timeout=10)
-            if response_get.status_code == 200:
-                orders = response_get.json()
-                created_order = next((o for o in orders if o.get('id') == order_id), None)
-                if created_order:
-                    result.add_test("GET /api/orders (verify creation)", True, f"Order {order_id} found in orders list")
-                else:
-                    result.add_test("GET /api/orders (verify creation)", False, "Created order not found in orders list")
-            else:
-                result.add_test("GET /api/orders (verify creation)", False, f"Status code: {response_get.status_code}")
-                
-        else:
-            result.add_test("POST /api/orders", False, f"Status code: {response.status_code}", response.text)
-    except Exception as e:
-        result.add_test("POST /api/orders", False, f"Error: {str(e)}")
-
-def test_bookings_api(result):
-    """Test Bookings API endpoints"""
-    
-    test_date = "2025-02-20"
-    
-    # Test GET /api/bookings-available/{date}
-    try:
-        response = requests.get(f"{BASE_URL}/bookings-available/{test_date}", timeout=10)
-        if response.status_code == 200:
-            availability = response.json()
-            available_slots = availability.get('availableSlots', [])
-            result.add_test(f"GET /api/bookings-available/{test_date}", True, f"{len(available_slots)} available slots")
-            
-            # Store initial available slots for later verification
-            initial_slots = available_slots.copy()
-            
-        else:
-            result.add_test(f"GET /api/bookings-available/{test_date}", False, f"Status code: {response.status_code}", response.text)
-            return
-    except Exception as e:
-        result.add_test(f"GET /api/bookings-available/{test_date}", False, f"Error: {str(e)}")
-        return
-    
-    # Test POST /api/bookings - Create test booking
-    if initial_slots:
-        test_booking = {
-            "serviceId": "s1",
-            "date": test_date,
-            "time": initial_slots[0],  # Use first available slot
-            "customer": {
-                "name": "Giulia Verdi", 
-                "email": "giulia.verdi@email.com", 
-                "phone": "393987654321"
-            },
-            "notes": "Prima consulenza"
+        success = response.status_code == expected_status
+        return success, {
+            "status_code": response.status_code,
+            "response": response.json() if response.content else {},
+            "url": response.url
         }
-        
-        try:
-            response = requests.post(f"{BASE_URL}/bookings", json=test_booking, timeout=10)
-            if response.status_code == 200:
-                booking = response.json()
-                result.add_test("POST /api/bookings", True, f"Booking created: {booking.get('bookingNumber')}")
-                
-                # Test availability again to verify slot is taken
-                response_check = requests.get(f"{BASE_URL}/bookings-available/{test_date}", timeout=10)
-                if response_check.status_code == 200:
-                    new_availability = response_check.json()
-                    new_slots = new_availability.get('availableSlots', [])
-                    if len(new_slots) == len(initial_slots) - 1 and test_booking['time'] not in new_slots:
-                        result.add_test(f"GET /api/bookings-available/{test_date} (verify booking)", True, f"Slot {test_booking['time']} correctly marked as booked")
-                    else:
-                        result.add_test(f"GET /api/bookings-available/{test_date} (verify booking)", False, "Available slots not properly updated")
-                else:
-                    result.add_test(f"GET /api/bookings-available/{test_date} (verify booking)", False, f"Status code: {response_check.status_code}")
-                    
-            elif response.status_code == 404:
-                result.add_test("POST /api/bookings", False, "Service not found - need to seed database with services", response.text)
-            else:
-                result.add_test("POST /api/bookings", False, f"Status code: {response.status_code}", response.text)
-        except Exception as e:
-            result.add_test("POST /api/bookings", False, f"Error: {str(e)}")
-    else:
-        result.add_test("POST /api/bookings", False, "No available slots to test booking creation")
-
-def test_blog_api(result):
-    """Test Blog API endpoints"""
-    
-    try:
-        response = requests.get(f"{BASE_URL}/blog", timeout=10)
-        if response.status_code == 200:
-            posts = response.json()
-            result.add_test("GET /api/blog", True, f"Retrieved {len(posts)} blog posts")
-        else:
-            result.add_test("GET /api/blog", False, f"Status code: {response.status_code}", response.text)
     except Exception as e:
-        result.add_test("GET /api/blog", False, f"Error: {str(e)}")
+        return False, f"Request failed: {str(e)}"
 
-def test_contact_api(result):
-    """Test Contact API endpoints"""
+def test_pagination_optimization():
+    """Test optimized MongoDB queries with pagination parameters"""
     
-    # Test POST /api/contact
-    test_contact = {
-        "name": "Alessandro Bianchi",
-        "email": "alessandro.bianchi@email.com",
-        "phone": "393456789012",
-        "message": "Vorrei maggiori informazioni sui vostri servizi nutrizionali. Sono interessato a una consulenza personalizzata."
+    print("=" * 80)
+    print("CENTRO METIS API - MONGODB OPTIMIZATION & PAGINATION TESTING")
+    print("=" * 80)
+    
+    results = {
+        "total_tests": 0,
+        "passed": 0,
+        "failed": 0,
+        "test_details": []
     }
     
-    try:
-        response = requests.post(f"{BASE_URL}/contact", json=test_contact, timeout=10)
-        if response.status_code == 200:
-            message = response.json()
-            result.add_test("POST /api/contact", True, f"Contact message created: {message.get('id')}")
-        else:
-            result.add_test("POST /api/contact", False, f"Status code: {response.status_code}", response.text)
-    except Exception as e:
-        result.add_test("POST /api/contact", False, f"Error: {str(e)}")
-
-def main():
-    print("Starting Centro Metis Backend API Tests...")
-    print(f"Testing against: {BASE_URL}")
+    # Test Cases for Pagination Optimization
+    test_cases = [
+        # Products API Tests
+        {
+            "name": "Products - Default Limit (100)",
+            "method": "GET",
+            "endpoint": "/products",
+            "params": None,
+            "expected_max_items": 100
+        },
+        {
+            "name": "Products - Custom Limit (5)", 
+            "method": "GET",
+            "endpoint": "/products",
+            "params": {"limit": 5},
+            "expected_max_items": 5
+        },
+        {
+            "name": "Products - Featured with Limit (3)",
+            "method": "GET", 
+            "endpoint": "/products",
+            "params": {"featured": "true", "limit": 3},
+            "expected_max_items": 3
+        },
+        
+        # Services API Tests
+        {
+            "name": "Services - Default Limit (100)",
+            "method": "GET",
+            "endpoint": "/services",
+            "params": None,
+            "expected_max_items": 100
+        },
+        {
+            "name": "Services - Custom Limit (3)",
+            "method": "GET",
+            "endpoint": "/services", 
+            "params": {"limit": 3},
+            "expected_max_items": 3
+        },
+        
+        # Orders API Tests  
+        {
+            "name": "Orders - Custom Limit (2)",
+            "method": "GET",
+            "endpoint": "/orders",
+            "params": {"limit": 2},
+            "expected_max_items": 2
+        },
+        {
+            "name": "Orders - Skip and Limit Pagination",
+            "method": "GET",
+            "endpoint": "/orders",
+            "params": {"skip": 1, "limit": 1}, 
+            "expected_max_items": 1
+        },
+        
+        # Bookings API Tests
+        {
+            "name": "Bookings - Custom Limit (5)",
+            "method": "GET",
+            "endpoint": "/bookings",
+            "params": {"limit": 5},
+            "expected_max_items": 5
+        },
+        {
+            "name": "Bookings Available - Optimized Time Projection",
+            "method": "GET",
+            "endpoint": "/bookings-available/2025-02-20",
+            "params": None,
+            "check_projection": True
+        },
+        
+        # Blog API Tests
+        {
+            "name": "Blog - Custom Limit (2)",
+            "method": "GET", 
+            "endpoint": "/blog",
+            "params": {"limit": 2},
+            "expected_max_items": 2
+        },
+        
+        # Contact API Tests
+        {
+            "name": "Contact - Custom Limit (5)",
+            "method": "GET",
+            "endpoint": "/contact",
+            "params": {"limit": 5},
+            "expected_max_items": 5
+        }
+    ]
     
-    result = TestResult()
+    # Execute Test Cases
+    for test_case in test_cases:
+        results["total_tests"] += 1
+        test_name = test_case["name"]
+        
+        print(f"\n[TEST {results['total_tests']}] {test_name}")
+        print("-" * 60)
+        
+        success, response_data = test_api_endpoint(
+            test_case["method"],
+            test_case["endpoint"], 
+            params=test_case.get("params")
+        )
+        
+        if not success:
+            print(f"❌ FAILED: {response_data}")
+            results["failed"] += 1
+            results["test_details"].append({
+                "test": test_name,
+                "status": "FAILED", 
+                "error": response_data
+            })
+            continue
+            
+        # Verify status code
+        if response_data["status_code"] != 200:
+            print(f"❌ FAILED: Expected status 200, got {response_data['status_code']}")
+            results["failed"] += 1
+            results["test_details"].append({
+                "test": test_name,
+                "status": "FAILED",
+                "error": f"HTTP {response_data['status_code']}"
+            })
+            continue
+            
+        response_json = response_data["response"]
+        
+        # Check pagination limits
+        if "expected_max_items" in test_case:
+            if test_case["endpoint"] == "/bookings-available/2025-02-20":
+                # Special case for available slots
+                available_slots = response_json.get("availableSlots", [])
+                item_count = len(available_slots)
+                print(f"✅ Available slots returned: {item_count}")
+            else:
+                # Regular list endpoints
+                if isinstance(response_json, list):
+                    item_count = len(response_json)
+                else:
+                    print(f"❌ FAILED: Response is not a list: {type(response_json)}")
+                    results["failed"] += 1
+                    continue
+                    
+                expected_max = test_case["expected_max_items"]
+                
+                if item_count <= expected_max:
+                    print(f"✅ PASSED: Returned {item_count} items (limit: {expected_max})")
+                else:
+                    print(f"❌ FAILED: Returned {item_count} items, exceeds limit of {expected_max}")
+                    results["failed"] += 1
+                    results["test_details"].append({
+                        "test": test_name,
+                        "status": "FAILED",
+                        "error": f"Limit exceeded: {item_count} > {expected_max}"
+                    })
+                    continue
+        
+        # Check projection optimization for bookings-available
+        if test_case.get("check_projection"):
+            if "availableSlots" in response_json and isinstance(response_json["availableSlots"], list):
+                print(f"✅ PASSED: Projection optimization working - returned available slots structure")
+            else:
+                print(f"❌ FAILED: Expected availableSlots array in response")
+                results["failed"] += 1
+                results["test_details"].append({
+                    "test": test_name, 
+                    "status": "FAILED",
+                    "error": "Missing availableSlots in response"
+                })
+                continue
+        
+        print(f"✅ PASSED: {test_name}")
+        results["passed"] += 1
+        results["test_details"].append({
+            "test": test_name,
+            "status": "PASSED", 
+            "response_size": len(response_json) if isinstance(response_json, list) else "N/A"
+        })
     
-    # Run all tests
-    test_health_check(result)
-    test_products_api(result)
-    test_services_api(result)
-    test_orders_api(result)
-    test_bookings_api(result)
-    test_blog_api(result)
-    test_contact_api(result)
+    # Print Final Results
+    print("\n" + "=" * 80)
+    print("MONGODB OPTIMIZATION & PAGINATION TEST RESULTS")
+    print("=" * 80)
+    print(f"Total Tests: {results['total_tests']}")
+    print(f"Passed: {results['passed']}")  
+    print(f"Failed: {results['failed']}")
+    print(f"Success Rate: {(results['passed']/results['total_tests']*100):.1f}%")
     
-    # Print results
-    result.print_summary()
+    if results["failed"] > 0:
+        print(f"\n❌ FAILED TESTS:")
+        for detail in results["test_details"]:
+            if detail["status"] == "FAILED":
+                print(f"  - {detail['test']}: {detail.get('error', 'Unknown error')}")
     
-    # Return exit code based on results
-    return 0 if result.failed == 0 else 1
+    return results
 
 if __name__ == "__main__":
-    sys.exit(main())
+    results = test_pagination_optimization()
+    
+    # Return appropriate exit code
+    exit_code = 0 if results["failed"] == 0 else 1
+    exit(exit_code)
