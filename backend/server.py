@@ -289,10 +289,12 @@ async def get_available_slots(date: str):
         "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
     ]
     
+    # Fetch only the 'time' field for efficiency
+    projection = {'_id': 0, 'time': 1}
     booked = await db.bookings.find({
         "date": date,
         "status": {"$in": ["pending", "confirmed"]}
-    }).to_list(1000)
+    }, projection).limit(50).to_list(50)
     
     booked_times = [b["time"] for b in booked]
     available = [slot for slot in all_slots if slot not in booked_times]
