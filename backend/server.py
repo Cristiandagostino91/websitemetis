@@ -43,11 +43,13 @@ def generate_booking_number():
 
 # ============= PRODUCTS ENDPOINTS =============
 @api_router.get("/products")
-async def get_products(featured: bool = None):
+async def get_products(featured: bool = None, limit: int = 100, skip: int = 0):
     query = {}
     if featured is not None:
         query["featured"] = featured
-    products = await db.products.find(query).to_list(1000)
+    
+    projection = {'_id': 0}  # Exclude MongoDB _id, keep all other fields
+    products = await db.products.find(query, projection).skip(skip).limit(min(limit, 100)).to_list(100)
     return [Product(**product) for product in products]
 
 
