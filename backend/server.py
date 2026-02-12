@@ -304,11 +304,13 @@ async def get_available_slots(date: str):
 
 # ============= BLOG ENDPOINTS =============
 @api_router.get("/blog")
-async def get_blog_posts(published: bool = None):
+async def get_blog_posts(published: bool = None, limit: int = 20, skip: int = 0):
     query = {}
     if published is not None:
         query["published"] = published
-    posts = await db.blog_posts.find(query).sort("createdAt", -1).to_list(1000)
+    
+    projection = {'_id': 0}
+    posts = await db.blog_posts.find(query, projection).sort("createdAt", -1).skip(skip).limit(min(limit, 50)).to_list(50)
     return [BlogPost(**post) for post in posts]
 
 
