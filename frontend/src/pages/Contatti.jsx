@@ -191,7 +191,7 @@ const Contatti = () => {
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Orari di Apertura</h3>
                     <div className="space-y-1 text-gray-600">
-                      <p>Lunedì - Venerdì: 9:00 - 19:00</p>
+                      <p>Lunedi - Venerdi: 9:00 - 19:00</p>
                       <p>Sabato: 9:00 - 13:00</p>
                       <p>Domenica: Chiuso</p>
                     </div>
