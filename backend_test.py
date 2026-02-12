@@ -188,7 +188,7 @@ def test_bookings_api(result):
     # Test POST /api/bookings - Create test booking
     if initial_slots:
         test_booking = {
-            "serviceId": "test-service-1",
+            "serviceId": "s1",
             "date": test_date,
             "time": initial_slots[0],  # Use first available slot
             "customer": {
