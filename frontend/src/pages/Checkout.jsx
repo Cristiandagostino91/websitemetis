@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { createOrder } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -12,6 +13,7 @@ import { CreditCard, CheckCircle } from 'lucide-react';
 const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,17 +32,53 @@ const Checkout = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
-    // Mock order placement
-    toast({
-      title: "Ordine completato!",
-      description: "Riceverai una email di conferma a breve.",
-    });
-    
-    clearCart();
-    navigate('/');
+    try {
+      const orderData = {
+        items: cartItems.map(item => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image
+        })),
+        customer: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone
+        },
+        shipping: {
+          address: formData.address,
+          city: formData.city,
+          zipCode: formData.zipCode,
+          notes: formData.notes
+        },
+        total: getCartTotal()
+      };
+
+      await createOrder(orderData);
+      
+      toast({
+        title: "Ordine completato!",
+        description: "Riceverai una email di conferma a breve.",
+      });
+      
+      clearCart();
+      navigate('/');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile completare l'ordine. Riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -242,9 +280,16 @@ const Checkout = () => {
                     type="submit"
                     className="w-full bg-green-600 hover:bg-green-700 text-white"
                     size="lg"
+                    disabled={loading}
                   >
-                    <CheckCircle className="mr-2 w-5 h-5" />
-                    Conferma Ordine
+                    {loading ? (
+                      <span>Elaborazione...</span>
+                    ) : (
+                      <>
+                        <CheckCircle className="mr-2 w-5 h-5" />
+                        Conferma Ordine
+                      </>
+                    )}
                   </Button>
 
                   <div className="mt-6 space-y-2">
