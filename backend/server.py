@@ -145,11 +145,13 @@ async def delete_service(service_id: str):
 
 # ============= ORDERS ENDPOINTS =============
 @api_router.get("/orders")
-async def get_orders(status: str = None):
+async def get_orders(status: str = None, limit: int = 50, skip: int = 0):
     query = {}
     if status:
         query["status"] = status
-    orders = await db.orders.find(query).sort("createdAt", -1).to_list(1000)
+    
+    projection = {'_id': 0}
+    orders = await db.orders.find(query, projection).sort("createdAt", -1).skip(skip).limit(min(limit, 100)).to_list(100)
     return [Order(**order) for order in orders]
 
 
