@@ -216,13 +216,15 @@ async def get_order_stats():
 
 # ============= BOOKINGS ENDPOINTS =============
 @api_router.get("/bookings")
-async def get_bookings(status: str = None, date: str = None):
+async def get_bookings(status: str = None, date: str = None, limit: int = 100, skip: int = 0):
     query = {}
     if status:
         query["status"] = status
     if date:
         query["date"] = date
-    bookings = await db.bookings.find(query).sort("date", 1).to_list(1000)
+    
+    projection = {'_id': 0}
+    bookings = await db.bookings.find(query, projection).sort("date", 1).skip(skip).limit(min(limit, 100)).to_list(100)
     return [Booking(**booking) for booking in bookings]
 
 
