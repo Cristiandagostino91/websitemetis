@@ -1,6 +1,6 @@
 import React from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { Toaster } from "./components/ui/toaster";
 
@@ -21,13 +21,27 @@ import Checkout from "./pages/Checkout";
 import Prenota from "./pages/Prenota";
 import Admin from "./pages/Admin";
 
+// Layout component that conditionally renders Navbar/Footer
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="App">
+      <ScrollToTop />
+      {!isAdminRoute && <Navbar />}
+      {children}
+      {!isAdminRoute && <Footer />}
+      <Toaster />
+    </div>
+  );
+};
+
 function App() {
   return (
     <CartProvider>
       <BrowserRouter>
-        <div className="App">
-          <ScrollToTop />
-          <Navbar />
+        <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/chi-siamo" element={<ChiSiamo />} />
@@ -41,9 +55,7 @@ function App() {
             <Route path="/prenota" element={<Prenota />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
-          <Footer />
-          <Toaster />
-        </div>
+        </Layout>
       </BrowserRouter>
     </CartProvider>
   );
