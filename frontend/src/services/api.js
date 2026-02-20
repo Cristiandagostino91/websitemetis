@@ -11,6 +11,41 @@ const api = axios.create({
   },
 });
 
+// Add auth token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// ============= AUTHENTICATION =============
+export const adminLogin = async (email, password) => {
+  const response = await api.post('/auth/login', { email, password });
+  return response.data;
+};
+
+export const verifyToken = async () => {
+  const response = await api.post('/auth/verify');
+  return response.data;
+};
+
+export const getAdminMe = async () => {
+  const response = await api.get('/auth/me');
+  return response.data;
+};
+
+// ============= FILE UPLOAD =============
+export const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
 // ============= PRODUCTS =============
 export const getProducts = async (featured = null) => {
   const params = featured !== null ? { featured } : {};
