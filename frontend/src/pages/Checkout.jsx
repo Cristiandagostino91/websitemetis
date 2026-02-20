@@ -171,36 +171,6 @@ const Checkout = () => {
     }
   };
 
-  // Handle cash on delivery
-  const handleCashOnDelivery = async (e) => {
-    e.preventDefault();
-    if (!formValid) return;
-    
-    setLoading(true);
-    try {
-      await createOrderInDB(null, 'pending');
-      
-      toast({
-        title: "Ordine completato!",
-        description: "Riceverai una email di conferma. Pagherai alla consegna.",
-      });
-      
-      clearCart();
-      setOrderCompleted(true);
-      setTimeout(() => navigate('/'), 3000);
-      
-    } catch (error) {
-      console.error('Error creating order:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile completare l'ordine. Riprova.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (cartItems.length === 0 && !orderCompleted) {
     navigate('/carrello');
     return null;
