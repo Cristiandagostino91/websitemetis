@@ -9,7 +9,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from '../hooks/use-toast';
-import { CheckCircle, Truck, ShieldCheck, Package } from 'lucide-react';
+import { CheckCircle, ShieldCheck, Package } from 'lucide-react';
 
 // PayPal Configuration
 const PAYPAL_CLIENT_ID = "sb"; // Sandbox for testing - will show PayPal sandbox buttons
