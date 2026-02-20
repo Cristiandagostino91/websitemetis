@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getProducts } from '../services/api';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useCart } from '../context/CartContext';
 import { toast } from '../hooks/use-toast';
-import { Search, ShoppingCart } from 'lucide-react';
+import { Search, ShoppingCart, Eye } from 'lucide-react';
 
 const Prodotti = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,14 +86,14 @@ const Prodotti = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
-              <div className="relative h-56 overflow-hidden bg-gray-100">
+              <Link to={`/prodotti/${product.id}`} className="relative h-64 overflow-hidden bg-white">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                 />
                 {product.inStock ? (
                   <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -103,20 +104,49 @@ const Prodotti = () => {
                     Esaurito
                   </div>
                 )}
-              </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <span className="bg-white text-green-600 px-4 py-2 rounded-full font-semibold flex items-center gap-2 shadow-lg">
+                    <Eye className="w-4 h-4" />
+                    Vedi Dettagli
+                  </span>
+                </div>
+              </Link>
               <CardContent className="p-5 flex-grow flex flex-col">
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{product.name}</h3>
-                <p className="text-sm text-gray-600 mb-4 flex-grow">{product.description}</p>
-                <div className="flex items-center justify-between mt-auto">
+                <Link to={`/prodotti/${product.id}`}>
+                  <h3 className="font-bold text-xl text-gray-900 mb-2 hover:text-green-600 transition-colors">{product.name}</h3>
+                </Link>
+                <p className="text-sm text-gray-600 mb-2">{product.subtitle || product.brand}</p>
+                <p className="text-sm text-gray-500 mb-4 flex-grow line-clamp-2">{product.description}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {product.glutenFree && (
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Senza Glutine</span>
+                  )}
+                  {product.lactoseFree && (
+                    <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">Senza Lattosio</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mt-auto pt-4 border-t">
                   <span className="text-2xl font-bold text-green-600">€{product.price.toFixed(2)}</span>
-                  <Button
-                    className="bg-green-600 hover:bg-green-700"
-                    onClick={() => handleAddToCart(product)}
-                    disabled={!product.inStock}
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Aggiungi
-                  </Button>
+                  <div className="flex gap-2">
+                    <Link to={`/prodotti/${product.id}`}>
+                      <Button variant="outline" size="sm">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      className="bg-green-600 hover:bg-green-700"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddToCart(product);
+                      }}
+                      disabled={!product.inStock}
+                      data-testid={`add-to-cart-${product.id}`}
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-1" />
+                      Aggiungi
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
