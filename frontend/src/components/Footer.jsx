@@ -14,7 +14,8 @@ const Footer = () => {
               <img 
                 src="https://customer-assets.emergentagent.com/job_5d21aff3-00f1-40fd-a0d6-82da65fac292/artifacts/gr1gcz9c_medici-Centro-Salerno-Logo-151w.webp" 
                 alt="Centro Metis Logo" 
-                className="h-12 w-auto brightness-0 invert"
+                className="h-14 w-auto"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
             <p className="text-sm text-gray-400 mb-4">
