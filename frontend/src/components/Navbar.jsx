@@ -27,13 +27,11 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">M</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-gray-900">Centro Metis</span>
-              <span className="text-xs text-gray-600">Studio Nutrizionale</span>
-            </div>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_5d21aff3-00f1-40fd-a0d6-82da65fac292/artifacts/gr1gcz9c_medici-Centro-Salerno-Logo-151w.webp" 
+              alt="Centro Metis Logo" 
+              className="h-14 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
