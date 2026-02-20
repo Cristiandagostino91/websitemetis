@@ -21,7 +21,6 @@ const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('paypal');
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [formValid, setFormValid] = useState(false);
   const [formData, setFormData] = useState({
