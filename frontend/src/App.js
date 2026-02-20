@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import ChiSiamo from "./pages/ChiSiamo";
 import Servizi from "./pages/Servizi";
 import Prodotti from "./pages/Prodotti";
+import ProductDetail from "./pages/ProductDetail";
 import Blog from "./pages/Blog";
 import Contatti from "./pages/Contatti";
 import Carrello from "./pages/Carrello";
@@ -47,6 +48,7 @@ function App() {
             <Route path="/chi-siamo" element={<ChiSiamo />} />
             <Route path="/servizi" element={<Servizi />} />
             <Route path="/prodotti" element={<Prodotti />} />
+            <Route path="/prodotti/:id" element={<ProductDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<Blog />} />
             <Route path="/contatti" element={<Contatti />} />
