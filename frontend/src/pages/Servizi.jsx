@@ -3,7 +3,7 @@ import { getServices } from '../services/api';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
-import { Clock, Calendar } from 'lucide-react';
+import { Phone, Calendar, ArrowRight } from 'lucide-react';
 import { toast } from '../hooks/use-toast';
 
 const Servizi = () => {
@@ -31,18 +31,13 @@ const Servizi = () => {
   }, []);
 
   const groupedServices = services.reduce((acc, service) => {
-    if (!acc[service.category]) {
-      acc[service.category] = [];
+    const cat = service.category || 'Consulenze';
+    if (!acc[cat]) {
+      acc[cat] = [];
     }
-    acc[service.category].push(service);
+    acc[cat].push(service);
     return acc;
   }, {});
-
-  const categoryNames = {
-    consulenze: 'Consulenze Nutrizionali',
-    analisi: 'Analisi e Test',
-    programmi: 'Programmi Specializzati'
-  };
 
   if (loading) {
     return (
@@ -60,9 +55,9 @@ const Servizi = () => {
       {/* Header */}
       <div className="bg-gradient-to-br from-green-600 to-green-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">I Nostri Servizi</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Consulenze Specialistiche</h1>
           <p className="text-xl text-green-100 max-w-2xl">
-            Consulenze specialistiche e percorsi personalizzati per il tuo benessere
+            Bioterapia nutrizionale, consulenze mediche e strutturazione di piani alimentari personalizzati
           </p>
         </div>
       </div>
@@ -71,7 +66,7 @@ const Servizi = () => {
         {Object.entries(groupedServices).map(([category, categoryServices]) => (
           <div key={category} className="mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-8">
-              {categoryNames[category] || category}
+              {category}
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categoryServices.map((service) => (
@@ -84,32 +79,52 @@ const Servizi = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex items-center space-x-2 text-white">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm font-semibold">{service.duration}</span>
-                      </div>
+                      <span className="px-3 py-1 bg-green-600 text-white text-xs rounded-full">
+                        {service.category}
+                      </span>
                     </div>
                   </div>
                   <CardContent className="p-6 flex-grow flex flex-col">
                     <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
                     <p className="text-gray-600 mb-6 flex-grow">{service.description}</p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div>
-                        <span className="text-3xl font-bold text-green-600">€{service.price.toFixed(2)}</span>
-                      </div>
-                      <Link to="/prenota">
-                        <Button className="bg-green-600 hover:bg-green-700">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Prenota
-                        </Button>
-                      </Link>
-                    </div>
+                    <Link to="/contatti" className="mt-auto">
+                      <Button className="w-full bg-green-600 hover:bg-green-700">
+                        Richiedi Informazioni
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
         ))}
+
+        {/* Contact CTA */}
+        <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-3xl p-8 md:p-12 text-white mt-12">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Prenota una Consulenza
+            </h2>
+            <p className="text-green-100 text-lg mb-8">
+              Per informazioni sui costi e per prenotare una consulenza specialistica, contattaci telefonicamente o via email.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="tel:+390828526155">
+                <Button size="lg" className="bg-white text-green-700 hover:bg-green-50 w-full sm:w-auto">
+                  <Phone className="w-5 h-5 mr-2" />
+                  +39 0828 52615
+                </Button>
+              </a>
+              <Link to="/contatti">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 w-full sm:w-auto">
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Richiedi Appuntamento
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Info Section */}
@@ -124,9 +139,9 @@ const Servizi = () => {
                 <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
                   1
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Prenota</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Contattaci</h3>
                 <p className="text-gray-600">
-                  Scegli il servizio più adatto alle tue esigenze e prenota una consulenza
+                  Chiamaci o invia una mail per prenotare una consulenza specialistica presso lo studio nutrizionale
                 </p>
               </div>
               <div>
@@ -135,7 +150,7 @@ const Servizi = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Valutazione</h3>
                 <p className="text-gray-600">
-                  Effettuiamo un'analisi completa con strumentazione avanzata
+                  Effettuiamo un'analisi completa con indagini strumentali: bioimpedenziometria, calorimetria indiretta e adipometria
                 </p>
               </div>
               <div>
@@ -144,7 +159,7 @@ const Servizi = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Piano Personalizzato</h3>
                 <p className="text-gray-600">
-                  Ricevi il tuo piano alimentare personalizzato e inizia il percorso
+                  Ricevi il tuo piano nutrizionale personalizzato strutturato sulle tue esigenze individuali
                 </p>
               </div>
             </div>
