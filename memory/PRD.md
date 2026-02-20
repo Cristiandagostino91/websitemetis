@@ -38,10 +38,10 @@ Creare una replica modernizzata e auto-gestibile del sito web `https://www.centr
 - [x] Pulsanti PayPal Smart Buttons integrati
 - [x] Pagamento con PayPal account
 - [x] Pagamento con carta di credito/debito via PayPal
-- [x] Pagamento alla consegna come alternativa
+- [x] Pagamento alla consegna RIMOSSO (solo PayPal disponibile)
 - [x] Email merchant: memoli.metis.pos@gmail.com
 - [x] Costo spedizione: €8.90 per 1-3 prodotti
-- [x] Calcolo automatico spedizione multipla
+- [x] Calcolo automatico spedizione multipla (€8.90 ogni 3 prodotti)
 
 #### Admin Panel - "Gestionale" (100% Complete)
 - [x] Sistema autenticazione JWT
