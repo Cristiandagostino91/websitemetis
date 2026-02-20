@@ -37,6 +37,57 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Create uploads directory for images
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
+
+
+# ============= AUTHENTICATION ENDPOINTS =============
+@api_router.post("/auth/login", response_model=Token)
+async def login(login_data: AdminLogin):
+    admin = authenticate_admin(login_data.email, login_data.password)
+    if not admin:
+        raise HTTPException(
+            status_code=401,
+            detail="Email o password non corretti"
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": admin.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@api_router.get("/auth/me", response_model=AdminUser)
+async def get_me(current_admin: AdminUser = Depends(get_current_admin)):
+    return current_admin
+
+
+@api_router.post("/auth/verify")
+async def verify_token(current_admin: AdminUser = Depends(get_current_admin)):
+    return {"valid": True, "email": current_admin.email}
+
+
+# ============= FILE UPLOAD ENDPOINT =============
+@api_router.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    current_admin: AdminUser = Depends(get_current_admin)
+):
+    # Generate unique filename
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+        raise HTTPException(status_code=400, detail="Formato file non supportato")
+    
+    unique_filename = f"{uuid.uuid4()}{file_ext}"
+    file_path = UPLOADS_DIR / unique_filename
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Return relative URL
+    return {"url": f"/api/uploads/{unique_filename}", "filename": unique_filename}
+
 
 # Utility function to generate order/booking numbers
 def generate_order_number():
@@ -411,6 +462,9 @@ async def health_check():
 
 # Include the router in the main app
 app.include_router(api_router)
+
+# Mount static files for uploads
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
