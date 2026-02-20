@@ -344,23 +344,11 @@ const Checkout = () => {
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">Metodo di Pagamento</h2>
                   <div className="space-y-4">
-                    {/* PayPal Option */}
+                    {/* PayPal - Only payment method */}
                     <div 
-                      onClick={() => setPaymentMethod('paypal')}
-                      className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'paypal' 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      className="flex items-center space-x-3 p-4 border-2 border-blue-500 bg-blue-50 rounded-lg"
                       data-testid="payment-paypal"
                     >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                        className="w-4 h-4 text-blue-600"
-                      />
                       <div className="flex items-center space-x-2 flex-1">
                         <svg className="w-20 h-6" viewBox="0 0 101 32">
                           <path fill="#003087" d="M12.237 2.8h-7.8c-.5 0-1 .4-1.1.9L.6 22.2c-.1.4.2.8.6.8h3.7c.5 0 1-.4 1.1-.9l.8-5.3c.1-.5.5-.9 1.1-.9h2.5c5.1 0 8.1-2.5 8.8-7.4.3-2.1 0-3.8-1-5-1.1-1.3-3-2-5.9-2zm.9 7.3c-.4 2.8-2.6 2.8-4.6 2.8h-1.2l.8-5.2c0-.3.3-.5.6-.5h.5c1.4 0 2.7 0 3.4.8.4.5.6 1.2.5 2.1z"/>
@@ -374,31 +362,8 @@ const Checkout = () => {
                       </div>
                     </div>
 
-                    {/* Cash on Delivery Option */}
-                    <div 
-                      onClick={() => setPaymentMethod('cash')}
-                      className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'cash' 
-                          ? 'border-green-600 bg-green-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      data-testid="payment-cash"
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === 'cash'}
-                        onChange={() => setPaymentMethod('cash')}
-                        className="w-4 h-4 text-green-600"
-                      />
-                      <div className="flex items-center space-x-2">
-                        <Truck className="w-6 h-6 text-green-600" />
-                        <span className="font-semibold text-gray-900">Pagamento alla consegna</span>
-                      </div>
-                    </div>
-
                     {/* PayPal Buttons */}
-                    {paymentMethod === 'paypal' && formValid && (
+                    {formValid && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-sm text-gray-600 mb-4">
                           Clicca sul pulsante PayPal per completare il pagamento in sicurezza:
@@ -425,35 +390,11 @@ const Checkout = () => {
                       </div>
                     )}
 
-                    {paymentMethod === 'paypal' && !formValid && (
+                    {!formValid && (
                       <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <p className="text-sm text-yellow-800">
                           Compila tutti i campi obbligatori per abilitare il pagamento PayPal
                         </p>
-                      </div>
-                    )}
-
-                    {paymentMethod === 'cash' && (
-                      <div className="mt-4">
-                        <p className="text-sm text-gray-600 mb-4">
-                          Pagherai in contanti al corriere al momento della consegna.
-                        </p>
-                        <Button
-                          onClick={handleCashOnDelivery}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                          disabled={!formValid || loading}
-                          data-testid="confirm-cash-order"
-                        >
-                          {loading ? (
-                            <span>Elaborazione...</span>
-                          ) : (
-                            <>
-                              <CheckCircle className="mr-2 w-5 h-5" />
-                              Conferma Ordine (Pagamento alla consegna)
-                            </>
-                          )}
-                        </Button>
                       </div>
                     )}
                   </div>
