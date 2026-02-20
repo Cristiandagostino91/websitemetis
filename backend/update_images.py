@@ -10,7 +10,7 @@ MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'test_database')
 
 # Base URL for scraped images
-BASE_URL = os.environ.get('BASE_URL', 'https://admin-dashboard-919.preview.emergentagent.com')
+BASE_URL = os.environ.get('BASE_URL', 'https://shop-preview-24.preview.emergentagent.com')
 IMAGES_PATH = "/api/uploads/scraped"
 
 # Image mappings

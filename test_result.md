@@ -229,7 +229,7 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "Backend API health check passing. Service accessible at production URL https://admin-dashboard-919.preview.emergentagent.com/api. Health endpoint returns status: healthy, database: connected. CORS middleware properly configured."
+          comment: "Backend API health check passing. Service accessible at production URL https://shop-preview-24.preview.emergentagent.com/api. Health endpoint returns status: healthy, database: connected. CORS middleware properly configured."
 
 frontend:
 
