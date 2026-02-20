@@ -1,7 +1,13 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 import uuid
+
+
+class NutritionalInfoItem(BaseModel):
+    nutrient: str
+    perDose: str
+    vnr: str
 
 
 class Product(BaseModel):
@@ -13,6 +19,21 @@ class Product(BaseModel):
     description: str
     inStock: bool = True
     featured: bool = False
+    # Extended fields
+    brand: Optional[str] = "Metis"
+    subtitle: Optional[str] = None
+    fullDescription: Optional[str] = None
+    benefits: Optional[List[str]] = None
+    ingredients: Optional[List[str]] = None
+    fullIngredients: Optional[str] = None
+    netWeight: Optional[str] = None
+    format: Optional[str] = None
+    flavor: Optional[str] = None
+    glutenFree: Optional[bool] = False
+    lactoseFree: Optional[bool] = False
+    nutritionalInfo: Optional[List[NutritionalInfoItem]] = None
+    usage: Optional[str] = None
+    warnings: Optional[str] = None
     createdAt: datetime = Field(default_factory=datetime.utcnow)
     updatedAt: datetime = Field(default_factory=datetime.utcnow)
 
@@ -25,6 +46,20 @@ class ProductCreate(BaseModel):
     description: str
     inStock: bool = True
     featured: bool = False
+    brand: Optional[str] = "Metis"
+    subtitle: Optional[str] = None
+    fullDescription: Optional[str] = None
+    benefits: Optional[List[str]] = None
+    ingredients: Optional[List[str]] = None
+    fullIngredients: Optional[str] = None
+    netWeight: Optional[str] = None
+    format: Optional[str] = None
+    flavor: Optional[str] = None
+    glutenFree: Optional[bool] = False
+    lactoseFree: Optional[bool] = False
+    nutritionalInfo: Optional[List[NutritionalInfoItem]] = None
+    usage: Optional[str] = None
+    warnings: Optional[str] = None
 
 
 class ProductUpdate(BaseModel):
@@ -35,6 +70,20 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     inStock: Optional[bool] = None
     featured: Optional[bool] = None
+    brand: Optional[str] = None
+    subtitle: Optional[str] = None
+    fullDescription: Optional[str] = None
+    benefits: Optional[List[str]] = None
+    ingredients: Optional[List[str]] = None
+    fullIngredients: Optional[str] = None
+    netWeight: Optional[str] = None
+    format: Optional[str] = None
+    flavor: Optional[str] = None
+    glutenFree: Optional[bool] = None
+    lactoseFree: Optional[bool] = None
+    nutritionalInfo: Optional[List[NutritionalInfoItem]] = None
+    usage: Optional[str] = None
+    warnings: Optional[str] = None
 
 
 class Service(BaseModel):
