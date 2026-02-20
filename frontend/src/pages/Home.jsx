@@ -176,19 +176,19 @@ const Home = () => {
                     alt={service.title} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full">
-                    <span className="text-sm font-bold text-green-600">{service.duration}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4">
+                    <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full">{service.category}</span>
                   </div>
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-gray-600 mb-4">{service.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-green-600">€{service.price.toFixed(2)}</span>
-                    <Link to="/prenota">
-                      <Button className="bg-green-600 hover:bg-green-700">Prenota</Button>
-                    </Link>
-                  </div>
+                  <p className="text-gray-600 mb-4 line-clamp-2">{service.description}</p>
+                  <Link to="/contatti">
+                    <Button className="w-full bg-green-600 hover:bg-green-700">
+                      Richiedi Informazioni
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
