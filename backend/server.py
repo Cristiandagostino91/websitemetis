@@ -1,11 +1,14 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
+import shutil
 from models import (
     Product, ProductCreate, ProductUpdate,
     Service, ServiceCreate, ServiceUpdate,
@@ -13,6 +16,11 @@ from models import (
     Booking, BookingCreate, BookingStatusUpdate,
     BlogPost, BlogPostCreate, BlogPostUpdate,
     ContactMessage, ContactMessageCreate, ContactMessageStatusUpdate
+)
+from auth import (
+    Token, AdminLogin, AdminUser, 
+    authenticate_admin, create_access_token, get_current_admin,
+    ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
 ROOT_DIR = Path(__file__).parent
