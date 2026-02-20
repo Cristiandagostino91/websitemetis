@@ -90,8 +90,8 @@ class Service(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
     category: str
-    price: float
-    duration: str
+    price: Optional[float] = None
+    duration: Optional[str] = None
     description: str
     image: str
     createdAt: datetime = Field(default_factory=datetime.utcnow)
@@ -101,8 +101,8 @@ class Service(BaseModel):
 class ServiceCreate(BaseModel):
     title: str
     category: str
-    price: float
-    duration: str
+    price: Optional[float] = None
+    duration: Optional[str] = None
     description: str
     image: str
 
