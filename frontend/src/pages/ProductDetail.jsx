@@ -113,9 +113,19 @@ const ProductDetail = () => {
             {/* Price & Add to Cart */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-end gap-2 mb-4">
+                <div className="flex items-end gap-2 mb-2">
                   <span className="text-4xl font-bold text-green-600">€{product.price.toFixed(2)}</span>
-                  <span className="text-gray-500 mb-1">+ spedizione</span>
+                </div>
+                
+                {/* Shipping Info */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-yellow-800">
+                    <Truck className="w-4 h-4 inline mr-1" />
+                    <strong>Spedizione: €8,90</strong> per 1-3 prodotti
+                  </p>
+                  <p className="text-xs text-yellow-700 mt-1">
+                    4-6 prodotti: €17,80 | 7-9 prodotti: €26,70 e così via
+                  </p>
                 </div>
                 
                 <p className="text-gray-600 mb-4">{product.subtitle}</p>
@@ -136,9 +146,13 @@ const ProductDetail = () => {
                       +
                     </button>
                   </div>
-                  <span className="text-gray-600">
-                    Totale: <strong className="text-green-600">€{(product.price * quantity).toFixed(2)}</strong>
-                  </span>
+                  <div className="text-sm">
+                    <span className="text-gray-600">Prodotti: </span>
+                    <strong className="text-green-600">€{(product.price * quantity).toFixed(2)}</strong>
+                    <span className="text-gray-400 mx-1">+</span>
+                    <span className="text-gray-600">Spedizione: </span>
+                    <strong className="text-yellow-600">€{(Math.ceil(quantity / 3) * 8.90).toFixed(2)}</strong>
+                  </div>
                 </div>
 
                 <Button 
@@ -153,7 +167,7 @@ const ProductDetail = () => {
                 <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
                   <div className="text-center">
                     <Truck className="w-6 h-6 mx-auto text-green-600 mb-1" />
-                    <span className="text-xs text-gray-600">Spedizione<br/>2-3 giorni</span>
+                    <span className="text-xs text-gray-600">Consegna<br/>2-3 giorni</span>
                   </div>
                   <div className="text-center">
                     <Shield className="w-6 h-6 mx-auto text-green-600 mb-1" />
