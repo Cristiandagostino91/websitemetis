@@ -96,7 +96,7 @@ const Checkout = () => {
       },
       total: getFinalTotal(),
       paypalOrderId: paypalOrderId,
-      paymentMethod: paymentMethod,
+      paymentMethod: 'paypal',
       paymentStatus: paymentStatus,
       shippingCost: getShippingCost()
     };
