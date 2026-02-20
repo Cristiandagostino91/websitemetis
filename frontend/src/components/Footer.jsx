@@ -11,10 +11,11 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl font-bold">M</span>
-              </div>
-              <span className="text-xl font-bold text-white">Centro Metis</span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_5d21aff3-00f1-40fd-a0d6-82da65fac292/artifacts/gr1gcz9c_medici-Centro-Salerno-Logo-151w.webp" 
+                alt="Centro Metis Logo" 
+                className="h-12 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-sm text-gray-400 mb-4">
               Studio nutrizionale che offre consulenze specialistiche e percorsi personalizzati per il tuo benessere.
