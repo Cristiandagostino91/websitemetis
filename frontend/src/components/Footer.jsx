@@ -10,12 +10,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center space-x-3 mb-4 bg-white p-3 rounded-lg inline-block">
               <img 
                 src="https://customer-assets.emergentagent.com/job_5d21aff3-00f1-40fd-a0d6-82da65fac292/artifacts/gr1gcz9c_medici-Centro-Salerno-Logo-151w.webp" 
                 alt="Centro Metis Logo" 
-                className="h-14 w-auto"
-                style={{ filter: 'brightness(0) invert(1)' }}
+                className="h-12 w-auto"
               />
             </div>
             <p className="text-sm text-gray-400 mb-4">
