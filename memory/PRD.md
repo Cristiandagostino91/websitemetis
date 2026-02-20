@@ -6,16 +6,18 @@ Creare una replica modernizzata e auto-gestibile del sito web `https://www.centr
 - "Gestionale" (pannello admin) per gestire prodotti, servizi, prezzi, offerte, foto e articoli blog
 - Assistenza per download progetto e push su GitHub personale
 - Integrazione immagini originali dal sito scraping
+- Sistema pagamento PayPal
 
 ## User Personas
 - **Admin/Owner**: Proprietario del centro che gestisce contenuti, prezzi, ordini e prenotazioni
 - **Customer**: Cliente che naviga, acquista prodotti e prenota servizi
 
 ## Tech Stack
-- **Frontend**: React 18, React Router, TailwindCSS, Shadcn/UI
+- **Frontend**: React 18, React Router, TailwindCSS, Shadcn/UI, @paypal/react-paypal-js
 - **Backend**: FastAPI, Python
 - **Database**: MongoDB (motor async driver)
 - **Auth**: JWT (python-jose, passlib/bcrypt)
+- **Payments**: PayPal Smart Buttons
 
 ## Core Requirements
 
@@ -29,8 +31,17 @@ Creare una replica modernizzata e auto-gestibile del sito web `https://www.centr
 - Blog con articoli
 - Pagina Contatti con form
 - Carrello (localStorage)
-- Checkout completo
+- Checkout completo con PayPal
 - Sistema prenotazioni servizi
+
+#### PayPal Payment Integration (100% Complete)
+- [x] Pulsanti PayPal Smart Buttons integrati
+- [x] Pagamento con PayPal account
+- [x] Pagamento con carta di credito/debito via PayPal
+- [x] Pagamento alla consegna come alternativa
+- [x] Email merchant: memoli.metis.pos@gmail.com
+- [x] Costo spedizione: €8.90 per 1-3 prodotti
+- [x] Calcolo automatico spedizione multipla
 
 #### Admin Panel - "Gestionale" (100% Complete)
 - [x] Sistema autenticazione JWT
@@ -57,6 +68,17 @@ Creare una replica modernizzata e auto-gestibile del sito web `https://www.centr
 - `/api/contact` - Messaggi contatto
 - `/api/orders-stats` - Statistiche dashboard
 
+## Shipping Logic
+```javascript
+const SHIPPING_COST = 8.90; // €8.90
+const MAX_PRODUCTS_PER_GROUP = 3;
+
+// 1-3 products: €8.90
+// 4-6 products: €17.80
+// 7-9 products: €26.70
+// etc.
+```
+
 ## Pending Tasks
 
 ### P1 - Alta Priorità
@@ -71,14 +93,13 @@ Creare una replica modernizzata e auto-gestibile del sito web `https://www.centr
 - [ ] Ottimizzazioni SEO
 - [ ] Sistema notifiche push
 - [ ] Report e analytics avanzati
-- [ ] Integrazione pagamenti (Stripe/PayPal)
 
 ## Database Schema
 
 ```
 products: {id, name, category, price, image, description, inStock, featured, createdAt, updatedAt}
 services: {id, title, category, price, duration, description, image, createdAt, updatedAt}
-orders: {id, orderNumber, items[], customer{}, shipping{}, total, status, createdAt, updatedAt}
+orders: {id, orderNumber, items[], customer{}, shipping{}, total, paypalOrderId, paymentMethod, paymentStatus, shippingCost, status, createdAt, updatedAt}
 bookings: {id, bookingNumber, serviceId, serviceName, servicePrice, date, time, customer{}, notes, status, createdAt, updatedAt}
 blog_posts: {id, title, excerpt, content, author, date, image, category, published, createdAt, updatedAt}
 contact_messages: {id, name, email, phone, message, status, createdAt}
@@ -103,6 +124,7 @@ contact_messages: {id, name, email, phone, message, status, createdAt}
 │   │   │   ├── Navbar.jsx
 │   │   │   └── Footer.jsx
 │   │   ├── pages/
+│   │   │   ├── Checkout.jsx        # PayPal integration
 │   │   │   ├── Admin.jsx           # Main admin container
 │   │   │   ├── admin/
 │   │   │   │   ├── AdminLogin.jsx
@@ -119,13 +141,14 @@ contact_messages: {id, name, email, phone, message, status, createdAt}
     └── PRD.md
 ```
 
-## Admin Credentials
-- **Email**: admin@centrometis.com
-- **Password**: CentroMetis@2024!Admin
+## Credentials
+- **Admin Email**: admin@centrometis.com
+- **Admin Password**: CentroMetis@2024!Admin
+- **PayPal Merchant**: memoli.metis.pos@gmail.com
 
 ## Test Coverage
 - Backend: 100% (31/31 tests passed)
-- Frontend: 100% (all CRUD operations tested)
+- Frontend: 100% (all CRUD operations + PayPal tested)
 
 ---
 *Last Updated: December 2025*
