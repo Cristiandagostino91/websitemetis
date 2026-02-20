@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta
 
 # Use the production backend URL from frontend .env
-BACKEND_URL = "https://smart-shop-pro.preview.emergentagent.com/api"
+BACKEND_URL = "https://admin-dashboard-919.preview.emergentagent.com/api"
 
 def test_api_endpoint(method, endpoint, expected_status=200, params=None, data=None):
     """Helper function to test API endpoints"""
